@@ -2,16 +2,17 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -pthread
+LIBS = -lcommons
 INCLUDES = -I ./include/ -I ./lib/include
 SOURCES = ./src/*.c ./lib/src/*.c
 
 
-OUTPUT = test
+OUTPUT = test.exe
 
 .PHONY: compile debug clean
 
 compile:
-	$(CC) $(CFLAGS) $(SOURCES) $(INCLUDES) -lcommons -o $(OUTPUT)
+	$(CC) $(CFLAGS) $(SOURCES) $(INCLUDES) $(LIBS) -o $(OUTPUT)
 
 debug:
 	$(CC) $(CFLAGS) $(SOURCES) $(INCLUDES) -g3 -o $(OUTPUT) && gdb -se $(OUTPUT)

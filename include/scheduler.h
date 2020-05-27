@@ -3,39 +3,28 @@
 #include <db.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <pthread.h>
 #include <commons/collections/queue.h>
 #include <commons/process.h>
 #include <semaphore.h>
 
-/* =============================================================== Scheduler ===============================================================   */
+/* =============================================================== FCFS Queue ===============================================================   */
 
+/*  Turnos por FIFO */
 typedef struct{
-
-/* Scheduling algorithm */
-char* algorithm;
-void* picker;
-
-} Scheduler;
-
-Scheduler* Scheduler_create(void);
-void Scheduler_destroy(Scheduler* scheduler);
+    pthread_cond_t cond;
+    pthread_mutex_t mutex;
+    uint32_t queue_head, queue_tail;
+} fcfs_ticket;
 
 /* =============================================================== Threads ===============================================================   */
 
+/* hace un lock a los threads en una "queue" en un mutex dentro del ticket    */
+void fcfs_wait(fcfs_ticket *ticket);
+
+/*  libera el proximo thread en FIFO    */
+void fcfs_signal(fcfs_ticket *ticket);
+
 void* thread_execute(void* arg);
-
-
-/* =============================================================== QUEUES ===============================================================   */
-
-typedef struct{
-
-t_queue* new_queue;
-t_queue* ready_queue;
-t_queue* blocked_queue;
-
-} Queues;
-
-Queues* Queues_Init(void);
-void  Queues_Destroy(Queues* self);
 

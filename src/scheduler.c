@@ -1,43 +1,41 @@
 #include <scheduler.h>
 
 extern int sum;
-extern sem_t  sem;
-/* =============================================================== QUEUES ===============================================================   */
+extern pthread_mutex_t  sem;
+extern fcfs_ticket tic;
 
+/* =============================================================== FCFS QUEUES ===============================================================   */
 
-Queues* Queues_Init(){
+void fcfs_wait(fcfs_ticket *ticket)
+{
+    unsigned long queue_me;
 
-    Queues* this_queues = malloc(sizeof(Queues));
-
-    this_queues->blocked_queue = queue_create();
-    this_queues->new_queue = queue_create();
-    this_queues->ready_queue = queue_create();
-
-    return this_queues;
+    pthread_mutex_lock(&ticket->mutex);
+    queue_me = ticket->queue_tail++;
+    while (queue_me != ticket->queue_head)
+    {
+        pthread_cond_wait(&ticket->cond, &ticket->mutex);
+    }
+    pthread_mutex_unlock(&ticket->mutex);
 }
 
-void Queues_Destroy(Queues* this_queues){
-
-}
-
-/* =============================================================== Scheduler ===============================================================   */
-
-Scheduler* Scheduler_create(void){
-    return malloc(sizeof(Scheduler));
-}
-void Scheduler_destroy(Scheduler* this_scheduler){
-    free(this_scheduler);
+void fcfs_signal(fcfs_ticket *ticket)
+{
+    pthread_mutex_lock(&ticket->mutex);
+    ticket->queue_head++;
+    pthread_cond_broadcast(&ticket->cond);
+    pthread_mutex_unlock(&ticket->mutex);
 }
 
 /* =============================================================== Execution ===============================================================   */
 
 void* thread_execute(void* arg){
     int* ptr = (int*)arg;
-    int cout = *ptr;
-    sem_wait(&sem);
-    
-    sum +=cout;
+    int number = *ptr;
 
-    printf("Thread: %d\nId:%d\n", process_get_thread_id(),cout);
-    sem_post(&sem);
+    fcfs_wait(&tic);
+    printf("Thread: %d\tId:%d\n", process_get_thread_id(), number);
+    fcfs_signal(&tic);
+
+    return NULL;
 }
