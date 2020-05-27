@@ -20,8 +20,9 @@ int main(void){
     pthread_mutexattr_init(&mxat);
     pthread_mutexattr_init(&mxat);
    
-    tic.queue_head = 0;
-    tic.queue_tail = 0;
+    tic.total_turns = 0;
+    tic.current_turn = 0;
+
     pthread_cond_init(&tic.cond, NULL);
     pthread_mutex_init(&tic.mutex, &mxat);
 

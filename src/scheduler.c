@@ -8,11 +8,13 @@ extern fcfs_ticket tic;
 
 void fcfs_wait(fcfs_ticket *ticket)
 {
-    unsigned long queue_me;
-
+    uint32_t turn;
     pthread_mutex_lock(&ticket->mutex);
-    queue_me = ticket->queue_tail++;
-    while (queue_me != ticket->queue_head)
+    /* Asigno el turno y aumento total de turnos    */
+    turn = ticket->total_turns++;
+
+    /* Espera activa de turno */
+    while (turn != ticket->current_turn)
     {
         pthread_cond_wait(&ticket->cond, &ticket->mutex);
     }
@@ -22,7 +24,9 @@ void fcfs_wait(fcfs_ticket *ticket)
 void fcfs_signal(fcfs_ticket *ticket)
 {
     pthread_mutex_lock(&ticket->mutex);
-    ticket->queue_head++;
+    /* Paso al siguiente turno  */
+    ticket->current_turn++;
+    /* Aviso al mutex que se desbloquee */
     pthread_cond_broadcast(&ticket->cond);
     pthread_mutex_unlock(&ticket->mutex);
 }
