@@ -24,3 +24,4 @@ Entonces como es que se encolan? Para eso se utiliza un *pthread_cond*, condicio
 Todo esto se encuentra encapsulado dentro de la estructura *fcfs_queue*, la idea es tener un contador de turnos, y un indicador de turno atendido, ademas del mutex y la condicion.
 
 Esto fue testeado en Ubuntu 18.04.4 - 64-bits, Windows subsytem for linux.
+Tambien en Ubuntu 16.04 - 32-bits
